@@ -1,9 +1,11 @@
-import { IsInt, IsDateString } from 'class-validator';
+import { IsInt, IsNumber, IsOptional } from 'class-validator';
 
 export class UpdateAuthKeyDto {
-    @IsInt()
-    rateLimit: number;
+  @IsOptional()
+  @IsInt()
+  rateLimit?: number;
 
-    @IsDateString()
-    expiration: string;
+  @IsOptional()
+  @IsNumber()
+  expiration?: number;
 }

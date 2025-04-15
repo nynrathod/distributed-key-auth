@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
 import { AuthKeyModule } from './auth-key/auth-key.module';
 import { RedisModule } from './common/redis/redis.module';
 import { ConfigModule } from '@nestjs/config';
@@ -9,13 +8,14 @@ import { JwtAuthModule } from './jwt/jwt.module';
 
 @Module({
   imports: [
-      ConfigModule.forRoot({
-        isGlobal: true,
-        envFilePath: '.env',
-      }),
-      DatabaseModule,AuthKeyModule, RedisModule, JwtAuthModule
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    DatabaseModule,
+    RedisModule,
+    AuthKeyModule,
+    JwtAuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService,],
 })
 export class AppModule {}

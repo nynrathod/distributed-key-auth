@@ -1,9 +1,12 @@
-    // src/common/redis/redis.module.ts
-    import { Module } from '@nestjs/common';
-    import { RedisService } from './redis.service';
+import { RedisService } from './redis.service';
+import { AuthKeyModule } from '../../auth-key/auth-key.module';
+import { forwardRef, Logger, Module } from '@nestjs/common';
 
-    @Module({
-        providers: [RedisService],
-        exports: [RedisService],  // Export RedisService so other modules can use it
-    })
-    export class RedisModule {}
+Logger.log('RedisModule initialized', 'RedisModule');
+
+@Module({
+  imports: [forwardRef(() => AuthKeyModule)],
+  providers: [RedisService],
+  exports: [RedisService],
+})
+export class RedisModule {}

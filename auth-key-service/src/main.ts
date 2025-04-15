@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ExceptionsFilter } from './exception-filter';
 import { JwtGuard } from './jwt/jwt.guard';
+import { ExceptionsFilter } from './exception-filters/exception-filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

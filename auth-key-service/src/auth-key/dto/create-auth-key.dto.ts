@@ -1,12 +1,12 @@
-import { IsString, IsInt, IsDateString } from 'class-validator';
+import { IsString, IsInt, IsNumber } from 'class-validator';
 
 export class CreateAuthKeyDto {
-    @IsString()
-    userId: string;
+  @IsString()
+  userId: string;
 
-    @IsInt()
-    rateLimit: number;
+  @IsInt()
+  rateLimit: number;
 
-    @IsDateString()
-    expiration: string;  // ISO 8601 format string
+  @IsNumber()
+  expiration: number;
 }

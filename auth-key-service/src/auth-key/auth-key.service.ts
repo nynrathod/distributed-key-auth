@@ -1,84 +1,126 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthKey } from './entities/auth-key.entity';
-import { RedisService } from '../common/redis/redis.service';
 import { randomBytes } from 'crypto';
+import { RedisService } from '../common/redis/redis.service';
 
 @Injectable()
 export class AuthKeyService {
-    constructor(
-        @InjectRepository(AuthKey)
-        private authKeyRepository: Repository<AuthKey>,
-        private redisService: RedisService, // Redis service to interact with channels
-    ) {}
+  constructor(
+    @InjectRepository(AuthKey)
+    private authKeyRepository: Repository<AuthKey>,
+    @Inject(forwardRef(() => RedisService))
+    private redisService: RedisService,
+  ) {}
 
-    // Generate a new Auth Key
-    async generateKey(userId: string, rateLimit: number, expiration: Date): Promise<AuthKey> {
-        const newKey = new AuthKey();
-        newKey.key = this.generateRandomKey(); // Key generation logic
-        newKey.userId = userId;
-        newKey.rateLimit = rateLimit;
-        newKey.expiration = expiration;
+  // Generate a new Auth Key
+  async generateKey(
+    userId: string,
+    rateLimit: number,
+    expiration: number,
+  ): Promise<AuthKey> {
+    const newKey = new AuthKey();
 
-        await this.authKeyRepository.save(newKey);
+    newKey.accessKey = this.generateRandomKey();
+    newKey.userId = userId;
+    newKey.rateLimit = rateLimit;
+    newKey.expiration = expiration;
 
-        // Publish an event to Redis when the new key is generated
-        await this.redisService.publish('auth-key-generated', JSON.stringify(newKey));
+    await this.authKeyRepository.save(newKey);
+    return newKey;
+  }
 
-        return newKey;
+  // Delete an Auth Key
+  async deleteKey(accessKey: string): Promise<void> {
+    const keyToDelete = await this.authKeyRepository.findOne({
+      where: { accessKey },
+    });
+
+    if (!keyToDelete) {
+      throw new NotFoundException('Auth key not found');
     }
 
-    // Delete an Auth Key
-    async deleteKey(key: string): Promise<AuthKey> {
-        const keyToDelete = await this.authKeyRepository.findOne({ where: { key } });
-        if (!keyToDelete) {
-            throw new NotFoundException('Auth key not found');
-        }
+    await this.authKeyRepository.remove(keyToDelete);
+  }
 
-        await this.authKeyRepository.remove(keyToDelete);
-
-        // Publish an event to Redis when the key is deleted
-        await this.redisService.publish('auth-key-deleted', JSON.stringify(keyToDelete));
-
-        return keyToDelete;
+  // Update an Auth Key's rate limit or expiration
+  async updateKey(
+    accessKey: string,
+    newRateLimit?: number,
+    newExpiration?: number,
+  ): Promise<AuthKey> {
+    if (typeof newRateLimit !== 'number' && typeof newExpiration !== 'number') {
+      throw new BadRequestException(
+        'At least one field (rateLimit or expiration) must be provided.',
+      );
     }
 
-    // Update an Auth Key's rate limit or expiration
-    async updateKey(key: string, newRateLimit: number, newExpiration: Date): Promise<AuthKey> {
-        const keyToUpdate = await this.authKeyRepository.findOne({ where: { key } });
-        if (!keyToUpdate) {
-            throw new NotFoundException('Auth key not found');
-        }
-
-        keyToUpdate.rateLimit = newRateLimit;
-        keyToUpdate.expiration = newExpiration;
-
-        await this.authKeyRepository.save(keyToUpdate);
-
-        // Publish an event to Redis when the key is updated
-        await this.redisService.publish('auth-key-updated', JSON.stringify(keyToUpdate));
-
-        return keyToUpdate;
+    const keyToUpdate = await this.authKeyRepository.findOne({
+      where: { accessKey },
+    });
+    if (!keyToUpdate) {
+      throw new NotFoundException('Auth key not found');
     }
 
-    // Get details for a specific Auth Key
-    async getUserDetails(key: string): Promise<AuthKey> {
-        const userKey = await this.authKeyRepository.findOne({ where: { key } });
-        if (!userKey) {
-            throw new NotFoundException('Invalid key');
-        }
-
-        // Check if the key has expired
-        if (new Date() > userKey.expiration) {
-            throw new ForbiddenException('Auth key has expired');
-        }
-
-        return userKey;
+    if (typeof newRateLimit === 'number') {
+      const cacheKey = `rate_limit:${accessKey}`;
+      const cachedRateLimit = await this.redisService.getCache(cacheKey);
+      if (cachedRateLimit) {
+        await this.redisService.setCache(cacheKey, newRateLimit.toString());
+        console.log(`Updated rate limit in cache for ${accessKey}`);
+      }
+      keyToUpdate.rateLimit = newRateLimit;
     }
 
-    // Helper function to generate random keys
-    private generateRandomKey(): string {
-        return randomBytes(32).toString('hex'); // 64-character hex string
+    if (typeof newExpiration === 'number') {
+      keyToUpdate.expiration = newExpiration;
     }
+
+    await this.authKeyRepository.save(keyToUpdate);
+    return keyToUpdate;
+  }
+
+  async getUserDetails(accessKey: string): Promise<AuthKey> {
+    const result = await this.authKeyRepository.findOne({
+      where: { accessKey },
+    });
+
+    if (!result) throw new NotFoundException('Auth key not found');
+
+    result.expiration = Number(result.expiration);
+
+    return result;
+  }
+
+  // Disable a key without deleting it
+  async disableKey(accessKey: string): Promise<AuthKey> {
+    const keyToDisable = await this.authKeyRepository.findOne({
+      where: { accessKey },
+    });
+
+    if (!keyToDisable) {
+      throw new NotFoundException('Auth key not found');
+    }
+
+    if (!keyToDisable.isActive) {
+      throw new BadRequestException('Auth key is already disabled');
+    }
+
+    keyToDisable.isActive = false;
+    await this.authKeyRepository.save(keyToDisable);
+    return keyToDisable;
+  }
+
+  // Helper function to generate random keys
+  private generateRandomKey(): string {
+    // 64-character hex string
+    return randomBytes(32).toString('hex');
+  }
 }

@@ -1,15 +1,20 @@
-// src/auth-key/auth-key.module.ts
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { AuthKeyService } from './auth-key.service';
 import { AuthKeyController } from './auth-key.controller';
 import { AuthKey } from './entities/auth-key.entity';
-import { RedisService } from '../common/redis/redis.service';
-
+import { RedisModule } from '../common/redis/redis.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AuthKey])],
+  imports: [
+    TypeOrmModule.forFeature([AuthKey]),
+
+    // Forward reference to RedisModule to handle circular dependency
+    forwardRef(() => RedisModule),
+  ],
   controllers: [AuthKeyController],
-  providers: [AuthKeyService, RedisService],
+  providers: [AuthKeyService],
+  exports: [AuthKeyService],
 })
 export class AuthKeyModule {}
