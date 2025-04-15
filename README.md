@@ -31,7 +31,7 @@ $ cd auth-key-service
 npm run dev:start
 ```
 
-### Start Frontend (React)
+### Start Golang
 
 ```bash
 $ cd web3-access-service
