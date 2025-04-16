@@ -44,3 +44,6 @@ go run main.go
 ```
 
 
+## 🔐 Distributed Key Auth API Collection
+
+### 🔑 [Postman collection](https://github.com/nynrathod/distributed-key-auth/blob/main/distributed-key-auth.postman_collection.json)
