@@ -1,0 +1,232 @@
+{
+	"info": {
+		"_postman_id": "d8f39c21-c597-4aee-881e-8b8856f7676d",
+		"name": "distributed-key-auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12091545"
+	},
+	"item": [
+		{
+			"name": "generate",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"user_123\",\r\n    \"rateLimit\": 100,\r\n    \"expiration\": 1754845012\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{auth-key}}generate",
+					"host": [
+						"{{auth-key}}generate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"rateLimit\": 10,\r\n  \"expiration\": 1754845012\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{auth-key}}update/7b0678df670f2ac475a0e92cd11840b6544cc418bc24ec8905c3f7cb13126ca8",
+					"host": [
+						"{{auth-key}}update"
+					],
+					"path": [
+						"7b0678df670f2ac475a0e92cd11840b6544cc418bc24ec8905c3f7cb13126ca8"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{auth-key}}delete/f23f7d08095e04191210891cd950c853dd6d5da0ba59d7af8c981b83781ddb8f",
+					"host": [
+						"{{auth-key}}delete"
+					],
+					"path": [
+						"f23f7d08095e04191210891cd950c853dd6d5da0ba59d7af8c981b83781ddb8f"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "disable",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{auth-key}}disable/7b0678df670f2ac475a0e92cd11840b6544cc418bc24ec8905c3f7cb13126ca8",
+					"host": [
+						"{{auth-key}}disable"
+					],
+					"path": [
+						"7b0678df670f2ac475a0e92cd11840b6544cc418bc24ec8905c3f7cb13126ca8"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-key",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{auth-key}}7b0678df670f2ac475a0e92cd11840b6544cc418bc24ec8905c3f7cb13126ca8",
+					"host": [
+						"{{auth-key}}7b0678df670f2ac475a0e92cd11840b6544cc418bc24ec8905c3f7cb13126ca8"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-token",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accessKey\": \"550a2bb0c9b322bda280b84194f1859f71525881a82993fbcb22a28e93bf7b7e\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{web3-access}}get-token-info",
+					"host": [
+						"{{web3-access}}get-token-info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-token Copy",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accessKey\": \"717792fefab107fed4eccc88ddb902f31997b8c78aada7a43669254186ea67ab\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{web3-access}}get-token-info",
+					"host": [
+						"{{web3-access}}get-token-info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"access_key\": \"c9fd17519b7832572f3126603d7711365441e09090b7fc7d5bd52c68be3d5b0b\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{web3-access}}publish-test-event",
+					"host": [
+						"{{web3-access}}publish-test-event"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
